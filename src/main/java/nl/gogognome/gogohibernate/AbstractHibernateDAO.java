@@ -59,11 +59,12 @@ public abstract class AbstractHibernateDAO<E> {
     }
 
     public void update(E entity) throws DataAccessException {
+        if (!exists(getId(entity))) {
+            throw new DataAccessException("Cannot update " + entityClass.getName() + " with id " + getId(entity)
+                    + " because it has not been persisted in the database before");
+        }
         try {
-            if (!session.contains(entity)) {
-                getSession().lock(entity, LockMode.NONE);
-            }
-            session.save(entity);
+            session.saveOrUpdate(entity);
         } catch (Exception e) {
             throw new DataAccessException("Could not update " + entityClass.getName(), e);
         }
