@@ -28,6 +28,18 @@ public abstract class AbstractHibernateDAO<E> {
         }
     }
 
+    public Serializable create(E entity) throws DataAccessException {
+        if (exists(getId(entity))) {
+            throw new DataAccessException("Cannot create " + entityClass.getName() + " with id " + getId(entity)
+                    + " because it has already been persisted in the database before");
+        }
+        try {
+            return getSession().save(entity);
+        } catch (Exception e) {
+            throw new DataAccessException("Could not save entity " + entityClass.getName(), e);
+        }
+    }
+
     public Serializable save(E entity) throws DataAccessException {
         try {
             return getSession().save(entity);
@@ -37,6 +49,9 @@ public abstract class AbstractHibernateDAO<E> {
     }
 
     public boolean exists(Serializable id) throws DataAccessException {
+        if (id == null) {
+            return false;
+        }
         try {
             Query query = getSession().createQuery("select count(*) from " + entityClass.getSimpleName() + " e where e.id = :id");
             if (id instanceof String) {
