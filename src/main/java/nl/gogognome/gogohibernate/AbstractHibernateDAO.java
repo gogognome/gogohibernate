@@ -8,6 +8,7 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.util.List;
 
 public abstract class AbstractHibernateDAO<E> {
@@ -106,7 +107,29 @@ public abstract class AbstractHibernateDAO<E> {
         }
     }
 
-    protected abstract Serializable getId(E entity);
+    /**
+     * Gets the id of the entity. This implementation returns the value of the getId() method of the entitiy.
+     * If the entity has no getId() method, then override this method and return the identity value for the entity parameter.
+     * @param entity an entity object
+     * @return the id of the entity object
+     */
+    protected Serializable getId(E entity) {
+        if (entity == null) {
+            throw new IllegalArgumentException("Cannot get id from null.");
+        }
+        try {
+            Method getId = entity.getClass().getMethod("getId");
+            return (Serializable) getId.invoke(entity);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Could not get id from entity object with type " + entity.getClass().getName());
+        }
+    }
 
-    protected abstract String getIdColumn();
+    /**
+     * Override this method if the database column that contains the primary key differs from "id".
+     * @return the database column that contains the primary key
+     */
+    protected String getIdColumn() {
+        return "id";
+    }
 }
