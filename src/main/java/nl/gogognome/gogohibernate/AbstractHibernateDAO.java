@@ -86,6 +86,16 @@ public abstract class AbstractHibernateDAO<E> {
         }
     }
 
+    public void deleteById(Serializable id) throws DataAccessException {
+        try {
+            getSession().createQuery("delete from " + entityClass.getSimpleName() + " where id=:id")
+                    .setParameter("id", id)
+                    .executeUpdate();
+        } catch (Exception e) {
+            throw new DataAccessException("Could not delete " + entityClass.getName() + " with id " + id, e);
+        }
+    }
+
     public void delete(E entity) throws DataAccessException {
         try {
             if (!session.contains(entity)) {
