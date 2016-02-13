@@ -117,6 +117,14 @@ public abstract class AbstractHibernateDAO<E> {
         }
     }
 
+    public void flush() throws DataAccessException {
+        try {
+            getSession().flush();
+        } catch (Exception e) {
+            throw new DataAccessException("Could not find all instances of " + entityClass.getName(), e);
+        }
+    }
+
     /**
      * Gets the id of the entity. This implementation returns the value of the getId() method of the entitiy.
      * If the entity has no getId() method, then override this method and return the identity value for the entity parameter.
