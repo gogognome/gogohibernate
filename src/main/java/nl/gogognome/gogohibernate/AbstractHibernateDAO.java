@@ -54,7 +54,7 @@ public abstract class AbstractHibernateDAO<E> {
             return false;
         }
         try {
-            Query query = getSession().createQuery("select count(*) from " + entityClass.getSimpleName() + " e where e.id = :id");
+            Query query = getSession().createQuery("select count(*) from " + entityClass.getSimpleName() + " e where e." + getIdColumn() + " = :id");
             if (id instanceof String) {
                 query.setString("id", (String) id);
             } else if (id instanceof Integer) {
@@ -88,7 +88,7 @@ public abstract class AbstractHibernateDAO<E> {
 
     public void deleteById(Serializable id) throws DataAccessException {
         try {
-            getSession().createQuery("delete from " + entityClass.getSimpleName() + " where id=:id")
+            getSession().createQuery("delete from " + entityClass.getSimpleName() + " where " + getIdColumn() + "=:id")
                     .setParameter("id", id)
                     .executeUpdate();
         } catch (Exception e) {
